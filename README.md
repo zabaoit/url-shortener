@@ -91,22 +91,47 @@ npm run dev
 - Frontend: `http://localhost:5173`
 - Backend: `http://localhost:8080`
 
-## 6) Dùng domain thật với Cloudflare Tunnel (không cần VPS)
+## 6) Deploy frontend lên GitHub Pages
+
+Frontend đã cấu hình `base: /url-shortener/`.
+
+### 6.1 Chuẩn bị API base cho production
+```bash
+cd frontend
+copy .env.production.example .env.production
+```
+
+Sửa `frontend/.env.production`:
+```env
+VITE_API_BASE_URL=https://go.lynkio.space
+```
+
+### 6.2 Deploy
+```bash
+cd frontend
+npm install
+npm run deploy
+```
+
+Sau khi deploy, mở:
+`https://zabaoit.github.io/url-shortener/`
+
+## 7) Dùng domain thật với Cloudflare Tunnel (không cần VPS)
 
 > Yêu cầu: domain đã quản lý DNS bởi Cloudflare.
 
-### 6.1 Cài và login cloudflared
+### 7.1 Cài và login cloudflared
 ```bash
 cloudflared tunnel login
 ```
 
-### 6.2 Tạo tunnel và map DNS
+### 7.2 Tạo tunnel và map DNS
 ```bash
 cloudflared tunnel create lynkio-short
 cloudflared tunnel route dns lynkio-short go.lynkio.space
 ```
 
-### 6.3 Tạo file `C:\Users\<USER>\.cloudflared\config.yml`
+### 7.3 Tạo file `C:\Users\<USER>\.cloudflared\config.yml`
 ```yaml
 tunnel: <TUNNEL_ID>
 credentials-file: C:\Users\<USER>\.cloudflared\<TUNNEL_ID>.json
@@ -119,19 +144,19 @@ ingress:
 
 > Lưu ý: key phải là `ingress` (không phải `inress`).
 
-### 6.4 Chạy tunnel
+### 7.4 Chạy tunnel
 ```bash
 cloudflared tunnel --config "C:\Users\<USER>\.cloudflared\config.yml" run lynkio-short
 ```
 
-### 6.5 Đổi base URL backend
+### 7.5 Đổi base URL backend
 Trong `backend/.env`:
 ```env
 APP_BASE_URL=https://go.lynkio.space
 ```
 restart backend.
 
-## 7) Troubleshooting nhanh
+## 8) Troubleshooting nhanh
 
 ### Lỗi `EADDRINUSE: 8080`
 Port 8080 đang bị process khác chiếm.
@@ -157,7 +182,7 @@ Tunnel chạy nhưng chưa có `config.yml` đúng hoặc thiếu `ingress`.
 ### `cloudflared` không nhận lệnh
 Mở terminal mới sau khi cài, hoặc chạy exe trực tiếp trong `C:\Program Files\cloudflared`.
 
-## 8) Bảo mật / Git
+## 9) Bảo mật / Git
 
 - Không commit file `.env`.
 - Dùng `backend/.env.example` để mô tả biến môi trường (không chứa secret).
