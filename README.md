@@ -106,12 +106,19 @@ Sửa `frontend/.env.production`:
 VITE_API_BASE_URL=https://go.lynkio.space
 ```
 
-### 6.2 Deploy
+### 6.2 Deploy thủ công
 ```bash
 cd frontend
 npm install
 npm run deploy
 ```
+
+### 6.3 Auto deploy từ nhánh `main` (đã cấu hình)
+Repo đã có workflow GitHub Actions: `.github/workflows/deploy-frontend.yml`.
+Mỗi lần push `main`, frontend sẽ tự build và deploy Pages.
+
+Yêu cầu trong GitHub:
+- `Settings -> Pages -> Source`: chọn **GitHub Actions**.
 
 Sau khi deploy, mở:
 `https://zabaoit.github.io/url-shortener/`
