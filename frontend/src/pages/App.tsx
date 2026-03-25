@@ -95,23 +95,27 @@ export function App() {
 
           <div className="mt-3 max-h-[70vh] overflow-auto space-y-2 pr-1">
             {history.map((item) => (
-              <button
+              <div
                 key={item.code}
-                onClick={() => setStatsCode(item.code)}
-                className="w-full text-left rounded-md border border-slate-700 bg-slate-950/70 p-2 hover:border-sky-600"
+                className="w-full rounded-md border border-slate-700 bg-slate-950/70 p-2 hover:border-sky-600"
               >
-                <p className="text-sky-300 font-semibold">/{item.code}</p>
+                <button
+                  type="button"
+                  onClick={() => setStatsCode(item.code)}
+                  className="text-sky-300 font-semibold hover:underline"
+                >
+                  /{item.code}
+                </button>
                 <p className="text-xs text-slate-300 truncate">{item.originalUrl}</p>
                 <a
                   href={item.shortUrl}
                   target="_blank"
                   rel="noreferrer"
                   className="text-xs text-emerald-300 underline break-all"
-                  onClick={(e) => e.stopPropagation()}
                 >
                   {item.shortUrl}
                 </a>
-              </button>
+              </div>
             ))}
 
             {!history.length && <p className="text-sm text-slate-400">Chưa có short link nào.</p>}
