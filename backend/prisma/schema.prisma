@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           BigInt      @id @default(autoincrement())
+  email        String      @unique @db.VarChar(255)
+  passwordHash String      @db.Text
+  status       String      @default("active") @db.VarChar(20)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  links        ShortLink[]
+  apiKeys      ApiKey[]
+
+  @@map("users")
+}
+
+model ShortLink {
+  id                BigInt       @id @default(autoincrement())
+  userId            BigInt?
+  code              String       @unique @db.VarChar(20)
+  originalUrl       String       @db.Text
+  normalizedUrlHash String       @db.Char(64)
+  expiresAt         DateTime?
+  isActive          Boolean      @default(true)
+  clickCount        BigInt       @default(0)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  user              User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  clickEvents       ClickEvent[]
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([normalizedUrlHash])
+  @@map("short_links")
+}
+
+model ClickEvent {
+  id          BigInt    @id @default(autoincrement())
+  linkId      BigInt
+  clickedAt   DateTime  @default(now())
+  ipHash      String    @db.Char(64)
+  userAgent   String?   @db.Text
+  referrer    String?   @db.Text
+  countryCode String?   @db.Char(2)
+  deviceType  String?   @db.VarChar(20)
+
+  link        ShortLink @relation(fields: [linkId], references: [id], onDelete: Cascade)
+
+  @@index([linkId, clickedAt])
+  @@index([clickedAt])
+  @@map("click_events")
+}
+
+model ApiKey {
+  id         BigInt   @id @default(autoincrement())
+  userId     BigInt
+  keyPrefix  String   @unique @db.VarChar(16)
+  keyHash    String   @unique @db.Char(64)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  lastUsedAt DateTime?
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("api_keys")
+}
+
+model BlockedDomain {
+  id        BigInt   @id @default(autoincrement())
+  domain    String   @unique @db.VarChar(255)
+  reason    String?  @db.Text
+  createdAt DateTime @default(now())
+
+  @@map("blocked_domains")
+}
+
+model RateLimitBucket {
+  bucketKey    String   @id @db.VarChar(120)
+  windowStart  DateTime
+  requestCount Int      @default(0)
+  updatedAt    DateTime @updatedAt
+
+  @@map("rate_limit_buckets")
+}
