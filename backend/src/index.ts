@@ -6,7 +6,22 @@ import { connectRedisSafe, prisma, redis } from './lib.js';
 const app = express();
 const PORT = Number(process.env.PORT || 8080);
 
-app.use(cors({ origin: process.env.FRONTEND_ORIGIN || '*' }));
+const defaultOrigins = ['http://localhost:5173', 'https://zabaoit.github.io'];
+const envOrigins = (process.env.FRONTEND_ORIGIN || '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
+const allowedOrigins = Array.from(new Set([...defaultOrigins, ...envOrigins]));
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error(`CORS blocked origin: ${origin}`));
+    },
+  })
+);
 app.use(express.json());
 
 app.get('/health', async (_req, res) => {
